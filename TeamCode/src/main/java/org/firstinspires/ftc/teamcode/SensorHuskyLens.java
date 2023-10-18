@@ -30,13 +30,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -60,12 +61,29 @@ import java.util.concurrent.TimeUnit;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 @TeleOp(name = "Sensor: HuskyLens", group = "Sensor")
-@Disabled
+//@Disabled
 public class SensorHuskyLens extends LinearOpMode {
 
     private final int READ_PERIOD = 1;
 
     private HuskyLens huskyLens;
+
+    double Kp = .0001;
+    double Ki = 0;
+    double Kd = 0;
+    double offset = 160; // this is the difference between process variable and setpoint
+    double Tp = 50;
+    double integral = 0; // the place where we will story our integral
+    double lastError = 0; // the place where we will store the last error value
+    double derivative = 0; // the place where we will store the derivative
+
+    double xvalue, error, Turn, frontRight, frontLeft, backRight, backLeft;
+
+    public DcMotor leftFront   = null;
+    public DcMotor  rightFront  = null;
+    public DcMotor  leftBack     = null;
+    public DcMotor  rightBack   = null;
+
 
     @Override
     public void runOpMode()
@@ -83,6 +101,18 @@ public class SensorHuskyLens extends LinearOpMode {
          * Immediately expire so that the first time through we'll do the read.
          */
         rateLimit.expire();
+
+
+        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
+
+
+        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         /*
          * Basic check to see if the device is alive and communicating.  This is not
@@ -139,11 +169,76 @@ public class SensorHuskyLens extends LinearOpMode {
              */
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
+            telemetry.addData("Blocks", blocks);
             for (int i = 0; i < blocks.length; i++) {
                 telemetry.addData("Block", blocks[i].toString());
-            }
 
+                if (blocks[i].id == 1) {
+                    xvalue = blocks[i].x;
+                }
+            }
+            error = xvalue - offset;
+            integral = integral + error;
+            derivative = error - lastError;
+            Turn = Kp * error + Ki * integral + Kd * derivative;
+            frontRight = Tp + Turn;
+            frontLeft = Tp + Turn;
+            backRight = Tp - Turn;
+            backLeft = Tp - Turn;
+            lastError = error;
+
+
+            final double v1 = 15*Turn;
+
+            leftFront.setPower(-v1);
+            rightFront.setPower(v1);
+            leftBack.setPower(-v1);
+            rightBack.setPower(v1);
+
+
+
+            telemetry.addData("speed", v1);
+            telemetry.addData("error", error);
             telemetry.update();
+
         }
+
     }
 }
+
+
+
+    /*          *** PSEUDOCODE FOR DATA RETRIEVED FROM HUSKYLENS ***
+
+                Assuming we get an x coordinate from the AprilTag we scan,
+                how do we center the AprilTag in the vision field of the HuskyLens sensor (effectively turning the robot)?
+
+                1. If x coordinate > origin (160,120), turn right until x coordinate equals origin;
+                   If x coordinate < origin (160,120), turn left until x coordinate equals origin
+
+                   *THIS IS DEPENDENT UPON WHAT POSITION IS NEEDED FOR PIXEL PLACEMENT*  - also the Huskylens reads distance
+                2. If y coordinate > origin (160,120), move forward until y coordinate equals origin;
+                   If y coordinate < origin (160,120), move backward until y coordinate equals origin
+
+
+                From here, we can move towards the backdrop, and place a pixel(s)
+                1. Move forward until you get to proper location for pixel release
+                2. Release pixel(s) onto backdrop
+
+                *** PID PSEUDOCODE ***
+
+                1. set movement motors to (motors)
+                2. set (Integral) to 0
+                3. set (lastError) to 0
+                -- FOREVER LOOP --
+                4. set (Error) to [(sensor) - 50]
+                5. set (P-fix) to [Error * 0.3]
+                6. set (Integral) to [Integral + Error]
+                7. set (I-fix) to [Integral * 0.001]
+                8. set (Derivative) to [Error - lastError]
+                9. set (lastError) to [Error]
+                10. set (D-fix) to [Derivative * 1]
+                11. set (correction) to [P-fix + I-fix + D-fix]
+                12. start moving at [40 + correction][40 - correction] %power
+                -- FOREVER LOOP --
+    */
