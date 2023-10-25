@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -39,6 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
@@ -62,22 +64,29 @@ import java.util.concurrent.TimeUnit;
  */
 @TeleOp(name = "Sensor: HuskyLens", group = "Sensor")
 //@Disabled
+@Config
 public class SensorHuskyLens extends LinearOpMode {
 
     private final int READ_PERIOD = 1;
 
     private HuskyLens huskyLens;
 
-    double Kp = .0001;
-    double Ki = 0;
-    double Kd = 0;
+    public static double Kp = .0005;
+    public static double Ki = 0;
+    public static double Kd = 0;
+    public static double MAX_TURN_SPD = .167;
+    public static double MIN_TURN_SPD = -.167;
     double offset = 160; // this is the difference between process variable and setpoint
     double Tp = 50;
     double integral = 0; // the place where we will story our integral
     double lastError = 0; // the place where we will store the last error value
     double derivative = 0; // the place where we will store the derivative
-
+    double v1 = 0;
     double xvalue, error, Turn, frontRight, frontLeft, backRight, backLeft;
+
+    boolean isQrcode1 = false;
+    boolean isQrcode3 = false;
+    boolean isQrcode2 = false;
 
     public DcMotor leftFront   = null;
     public DcMotor  rightFront  = null;
@@ -88,6 +97,7 @@ public class SensorHuskyLens extends LinearOpMode {
     @Override
     public void runOpMode()
     {
+
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
 
         /*
@@ -170,14 +180,39 @@ public class SensorHuskyLens extends LinearOpMode {
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
             telemetry.addData("Blocks", blocks);
+            isQrcode1 = false;
+            isQrcode3 = false;
+            xvalue = 300;
             for (int i = 0; i < blocks.length; i++) {
                 telemetry.addData("Block", blocks[i].toString());
 
                 if (blocks[i].id == 1) {
                     xvalue = blocks[i].x;
+                    isQrcode1 = true;
+                }
+
+
+                if (blocks[i].id == 2) {
+                    isQrcode2 = true;
+                }
+
+                if (blocks[i].id == 3) {
+                    isQrcode3 = true;
                 }
             }
-            error = xvalue - offset;
+
+            if ((isQrcode2) && (!isQrcode1)) {
+                error = -75;
+            }
+
+            else if ((isQrcode3) && (!isQrcode1)) {
+                error = -100;
+            }
+            else {
+                error = xvalue - offset;
+            }
+
+
             integral = integral + error;
             derivative = error - lastError;
             Turn = Kp * error + Ki * integral + Kd * derivative;
@@ -187,7 +222,21 @@ public class SensorHuskyLens extends LinearOpMode {
             backLeft = Tp - Turn;
             lastError = error;
 
-            final double v1 = 15*Turn;
+            if (Turn>MAX_TURN_SPD) {
+                Turn = MAX_TURN_SPD;
+            } else if (Turn < -MIN_TURN_SPD) {
+                Turn = MIN_TURN_SPD;
+            }
+
+            //
+
+
+            if (isQrcode3 == true) {
+                v1 = -1 * Turn;
+            }
+
+            v1 = 1*Turn;
+
 
             leftFront.setPower(-v1);
             rightFront.setPower(v1);
@@ -198,7 +247,6 @@ public class SensorHuskyLens extends LinearOpMode {
             telemetry.addData("error", error);
             telemetry.update();
         }
-
     }
 }
 
