@@ -157,3 +157,29 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         }
     }
 }
+
+
+/* PseudoCode TeleOp
+
+1.Drive:
+Left joystick tilted north - Forward-All 4 motors turn forward
+Left joystick tilted south - Backward-All 4 motors turn backward
+Left joystick tilted west - Left
+Left joystick tilted east - Right
+Left joystick tilted in a diagonal - Strafe
+
+2.Grab Pixels:
+-Intake Pixels
+
+3.Transport Pixels:
+Left joystick tilted north - Forward-All 4 motors turn forward
+Left joystick tilted south - Backward-All 4 motors turn backward
+Left joystick tilted west - Left
+Left joystick tilted east - Right
+Left joystick tilted in a diagonal - Strafe
+
+4.Place Pixels:
+-Slide plate using linear slide
+-Drop pixels onto backdrop
+
+ */

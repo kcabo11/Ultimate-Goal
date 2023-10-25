@@ -187,7 +187,6 @@ public class SensorHuskyLens extends LinearOpMode {
             backLeft = Tp - Turn;
             lastError = error;
 
-
             final double v1 = 15*Turn;
 
             leftFront.setPower(-v1);
@@ -195,12 +194,9 @@ public class SensorHuskyLens extends LinearOpMode {
             leftBack.setPower(-v1);
             rightBack.setPower(v1);
 
-
-
             telemetry.addData("speed", v1);
             telemetry.addData("error", error);
             telemetry.update();
-
         }
 
     }
