@@ -67,9 +67,9 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
     private HuskyLens huskyLens;
 
-//    private DcMotor leftDrive = null;
-//    private DcMotor rightDrive = null;
-//    private IMU imu = null;
+    private DcMotor leftDrive = null;
+    private DcMotor rightDrive = null;
+    private IMU imu = null;
 
     public static double Kp = .0005;
     public static double Ki = 0;
@@ -108,14 +108,14 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_TRACKING);
 
         // Initialize the drive system variables.
-//        leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
-//        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-//        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-//        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         /*
          * This sample rate limits the reads solely to allow a user time to observe
@@ -142,15 +142,15 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // Set the encoders for closed loop speed control, and reset the heading.
-//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        imu.resetYaw();
+//         Set the encoders for closed loop speed control, and reset the heading.
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        imu.resetYaw();
 
         /*
          * Basic check to see if the device is alive and communicating.  This is not
@@ -276,8 +276,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             rightBack.setPower(v1);
 
 
-            if (isColor1 == true) {
-                isColor1 = offset == 160;
+            if (isColor1 == true && offset == 160) {
 
                 leftFront.setPower(0 * -v1);
                 rightFront.setPower(0 * v1);
