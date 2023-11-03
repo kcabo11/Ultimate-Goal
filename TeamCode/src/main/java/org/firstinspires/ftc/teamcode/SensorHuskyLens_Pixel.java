@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@TeleOp(name = "Sensor: HuskyLens", group = "Sensor")
+@TeleOp(name = "Sensor: HuskyLens_Pixel", group = "Sensor")
 //@Disabled
 @Config
 public class SensorHuskyLens_Pixel extends LinearOpMode {
@@ -67,9 +67,9 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
     private HuskyLens huskyLens;
 
-    private DcMotor         leftDrive   = null;
-    private DcMotor         rightDrive  = null;
-    private IMU imu         = null;
+//    private DcMotor leftDrive = null;
+//    private DcMotor rightDrive = null;
+//    private IMU imu = null;
 
     public static double Kp = .0005;
     public static double Ki = 0;
@@ -84,39 +84,38 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
     double v1 = 0;
     double xvalue, error, Turn, frontRight, frontLeft, backRight, backLeft;
 
-    boolean isQrcode1 = false;
-    boolean isQrcode3 = false;
-    boolean isQrcode2 = false;
+    boolean isColor1 = true;
+    boolean isColor3 = true;
+//    boolean isQrcode2 = true;
 
-    public DcMotor leftFront   = null;
-    public DcMotor  rightFront  = null;
-    public DcMotor  leftBack     = null;
-    public DcMotor  rightBack   = null;
+    public DcMotor leftFront = null;
+    public DcMotor rightFront = null;
+    public DcMotor leftBack = null;
+    public DcMotor rightBack = null;
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.4;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.2;     // Max Turn speed to limit turn rate
-    static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
+    static final double DRIVE_SPEED = 0.4;     // Max driving speed for better distance accuracy.
+    static final double TURN_SPEED = 0.2;     // Max Turn speed to limit turn rate
+    static final double HEADING_THRESHOLD = 1.0;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
 
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
 
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_RECOGNITION);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_TRACKING);
 
         // Initialize the drive system variables.
-        leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+//        leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
+//        rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+//        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+//        rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         /*
          * This sample rate limits the reads solely to allow a user time to observe
@@ -131,10 +130,10 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         rateLimit.expire();
 
 
-        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
 
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -143,15 +142,15 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set the encoders for closed loop speed control, and reset the heading.
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        imu.resetYaw();
+//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        imu.resetYaw();
 
         /*
          * Basic check to see if the device is alive and communicating.  This is not
@@ -180,7 +179,6 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
          * within the OpMode by calling selectAlgorithm() and passing it one of the values
          * found in the enumeration HuskyLens.Algorithm.
          */
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
 
         telemetry.update();
         waitForStart();
@@ -191,10 +189,10 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
          *
          * Note again that the device only recognizes the 36h11 family of tags out of the box.
          */
-        while (opModeIsActive() &&
-                (leftDrive.isBusy() && rightDrive.isBusy())){
+        while (opModeIsActive()) {
+          //      (leftDrive.isBusy() && rightDrive.isBusy())) {
             if (!rateLimit.hasExpired()) {
-                continue;
+            //    continue;
             }
             rateLimit.reset();
 
@@ -211,33 +209,35 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
             telemetry.addData("Blocks", blocks);
-            isQrcode1 = false;
-            isQrcode3 = false;
+            isColor1 = false;
+            isColor3 = false;
             xvalue = 300;
             for (int i = 0; i < blocks.length; i++) {
                 telemetry.addData("Block", blocks[i].toString());
 
                 if (blocks[i].id == 1) {
                     xvalue = blocks[i].x;
-                    isQrcode1 = true;
+                    isColor1 = true;
 
                 }
 
 
-                if (blocks[i].id == 2) {
-                    isQrcode2 = true;
-                }
+//                if (blocks[i].id == 2) {
+//                    isQrcode2 = true;
+//                }
 
                 if (blocks[i].id == 3) {
-                    isQrcode3 = true;
+                    isColor3 = true;
                 }
             }
 
-            if ((isQrcode2) && (!isQrcode1)) {
-                error = -75;
-            }
+//            if ((isQrcode2) && (!isQrcode1)) {
+//                error = -75;
+//            }
 
-            else if ((isQrcode3) && (!isQrcode1)) {
+            //else
+//            if ((isColor3) &&
+            if (!isColor1) {
                 error = -100;
             }
             else {
@@ -254,7 +254,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             backLeft = Tp - Turn;
             lastError = error;
 
-            if (Turn>MAX_TURN_SPD) {
+            if (Turn > MAX_TURN_SPD) {
                 Turn = MAX_TURN_SPD;
             } else if (Turn < -MIN_TURN_SPD) {
                 Turn = MIN_TURN_SPD;
@@ -263,11 +263,11 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             //
 
 
-            if (isQrcode3 == true) {
-                v1 = -1 * Turn;
-            }
+//            if (isQrcode3 == true) {
+//                v1 = -1 * Turn;
+//            }
 
-            v1 = 1*Turn;
+            v1 = 1 * Turn;
 
 
             leftFront.setPower(-v1);
@@ -275,20 +275,33 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             leftBack.setPower(-v1);
             rightBack.setPower(v1);
 
-            // Step through each leg of the path,
-            driveStraight(DRIVE_SPEED, 24.0, 0.05);    // Drive Forward 24"
-            turnToHeading( TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-            holdHeading( TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
 
-            driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-            turnToHeading( TURN_SPEED,  45.0);               // Turn  CCW  to  45 Degrees
-            holdHeading( TURN_SPEED,  45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+            if (isColor1 == true) {
+                isColor1 = offset == 160;
 
-            driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-            turnToHeading( TURN_SPEED,   0.0);               // Turn  CW  to 0 Degrees
-            holdHeading( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for 1 second
+                leftFront.setPower(0 * -v1);
+                rightFront.setPower(0 * v1);
+                leftBack.setPower(0 * -v1);
+                rightBack.setPower(0 * v1);
 
-            driveStraight(DRIVE_SPEED,-48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+            }
+
+//             Step through each leg of the path,
+            if (isColor1 == true) {
+                driveStraight(DRIVE_SPEED, 24.0, 0.05);    // Drive Forward 24"
+                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
+                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
+
+                driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
+                turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
+                holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+
+                driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
+                turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
+                holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
+
+                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+            }
 
 
             telemetry.addData("Path", "Complete");
@@ -300,6 +313,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             telemetry.update();
         }
     }
+
 
     private void driveStraight(double driveSpeed, double v, double v1) {
 

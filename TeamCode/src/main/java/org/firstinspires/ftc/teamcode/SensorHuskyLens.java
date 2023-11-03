@@ -212,6 +212,13 @@ public class SensorHuskyLens extends LinearOpMode {
                 error = xvalue - offset;
             }
 
+            if (isQrcode3 == true) {
+                v1 = -1 * Turn;
+            }
+
+            v1 = 1*Turn;
+
+
 
             integral = integral + error;
             derivative = error - lastError;
@@ -231,11 +238,6 @@ public class SensorHuskyLens extends LinearOpMode {
             //
 
 
-            if (isQrcode3 == true) {
-                v1 = -1 * Turn;
-            }
-
-            v1 = 1*Turn;
 
 
             leftFront.setPower(-v1);
