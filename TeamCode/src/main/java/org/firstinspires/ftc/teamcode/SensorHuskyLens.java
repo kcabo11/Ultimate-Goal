@@ -191,7 +191,6 @@ public class SensorHuskyLens extends LinearOpMode {
                     isQrcode1 = true;
                 }
 
-
                 if (blocks[i].id == 2) {
                     isQrcode2 = true;
                 }
@@ -235,10 +234,6 @@ public class SensorHuskyLens extends LinearOpMode {
                 Turn = MIN_TURN_SPD;
             }
 
-            //
-
-
-
 
             leftFront.setPower(-v1);
             rightFront.setPower(v1);
@@ -247,6 +242,10 @@ public class SensorHuskyLens extends LinearOpMode {
 
             telemetry.addData("speed", v1);
             telemetry.addData("error", error);
+            telemetry.addData("leftFront: ", leftFront.getCurrentPosition());
+            telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
+            telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
+            telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
             telemetry.update();
         }
     }

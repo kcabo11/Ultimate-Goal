@@ -67,9 +67,9 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
     private HuskyLens huskyLens;
 
-    private DcMotor leftDrive = null;
-    private DcMotor rightDrive = null;
-    private IMU imu = null;
+//    private DcMotor leftDrive = null;
+//    private DcMotor rightDrive = null;
+   // private IMU imu = null;
 
     public static double Kp = .0005;
     public static double Ki = 0;
@@ -105,17 +105,17 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
     public void runOpMode() {
 
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_TRACKING);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
 
         // Initialize the drive system variables.
-        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
-        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
+//        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
+//        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
+//        leftDrive.setDirection(DcMotor.Direction.REVERSE);
+//        rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
         /*
          * This sample rate limits the reads solely to allow a user time to observe
@@ -142,15 +142,15 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //         Set the encoders for closed loop speed control, and reset the heading.
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        imu.resetYaw();
+//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        imu.resetYaw();
 
         /*
          * Basic check to see if the device is alive and communicating.  This is not
@@ -276,7 +276,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             rightBack.setPower(v1);
 
 
-            if (isColor1 == true && offset == 160) {
+            if (isColor1 == true && offset > 150 && offset < 170) {
 
                 leftFront.setPower(0 * -v1);
                 rightFront.setPower(0 * v1);
@@ -287,19 +287,19 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
 //             Step through each leg of the path,
             if (isColor1 == true) {
-                driveStraight(DRIVE_SPEED, 24.0, 0.05);    // Drive Forward 24"
-                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
-
-                driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-                turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
-                holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
-
-                driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-                turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
-                holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
-
-                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+//                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
+//                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
+//
+//                driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
+//                turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
+//                holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+//
+//                driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
+//                turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
+//                holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
+//
+//                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
             }
 
 
@@ -327,40 +327,6 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
 
 
-    /*          *** PSEUDOCODE FOR DATA RETRIEVED FROM HUSKYLENS ***
-
-                Assuming we get an x coordinate from the AprilTag we scan,
-                how do we center the AprilTag in the vision field of the HuskyLens sensor (effectively turning the robot)?
-
-                1. If x coordinate > origin (160,120), turn right until x coordinate equals origin;
-                   If x coordinate < origin (160,120), turn left until x coordinate equals origin
-
-                   *THIS IS DEPENDENT UPON WHAT POSITION IS NEEDED FOR PIXEL PLACEMENT*  - also the Huskylens reads distance
-                2. If y coordinate > origin (160,120), move forward until y coordinate equals origin;
-                   If y coordinate < origin (160,120), move backward until y coordinate equals origin
-
-
-                From here, we can move towards the backdrop, and place a pixel(s)
-                1. Move forward until you get to proper location for pixel release
-                2. Release pixel(s) onto backdrop
-
-                *** PID PSEUDOCODE ***
-
-                1. set movement motors to (motors)
-                2. set (Integral) to 0
-                3. set (lastError) to 0
-                -- FOREVER LOOP --
-                4. set (Error) to [(sensor) - 50]
-                5. set (P-fix) to [Error * 0.3]
-                6. set (Integral) to [Integral + Error]
-                7. set (I-fix) to [Integral * 0.001]
-                8. set (Derivative) to [Error - lastError]
-                9. set (lastError) to [Error]
-                10. set (D-fix) to [Derivative * 1]
-                11. set (correction) to [P-fix + I-fix + D-fix]
-                12. start moving at [40 + correction][40 - correction] %power
-                -- FOREVER LOOP --
-    */
 
 // ============================================================================================================================
 
@@ -374,8 +340,28 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
                 1. Configure huskylens to see temporary team marker
                 2. Examine example gyro code
 
+ */
+//  ============================================================================================================================
+/*              *** Pseudocode: Preloaded with purple and yellow pixels***
 
-                From here, you can write pseudocode for grabbing the marker and placing it
-                4.
+                ==== PLACE PURPLE PIXEL ON SPIKE MARK ====
+                1. Locate spike mark (determine which line it is on)
+                2. Center robot, facing spike mark
+                3. Drive towards spike mark approximately *1 ft 11.5 inches* (get in position to place purple pixel)
+                4. Place/push purple pixel
+
+                ==== PLACE YELLOW PIXEL ON BACKDROP ====
+                1. Back up approximately 5 in
+                2. Gyro turn 90 degrees right (facing backdrop)
+                3. Drive approximately *2 ft 10.5in* towards backdrop
+                4. Use webcam to center and drive to april tag id (1, 2, 3) - "RobotAutoDriveToAprilTagOmni.java"
+                5. Place yellow pixel
+
+                ==== PARK IN BACKSTAGE ====
+                1. Back up approximately 1 ft
+                2. Gyro turn 90 degrees right
+                3. Drive forward 1 ft (approximated)
+                4. Gyro turn 90 degrees left
+                5. Drive forward 1.5 ft and PARK
 
  */
