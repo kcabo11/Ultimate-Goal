@@ -269,6 +269,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             }
 
             if (isBlock1 || isBlock2) {
+
                 telemetry.addData("Block", blocks[0].id);
                 telemetry.addData("xValue", blocks[0].x);
             }
