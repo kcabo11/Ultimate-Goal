@@ -34,14 +34,37 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 
 import java.util.concurrent.TimeUnit;
+
+// ============================ EasyOpenCV Imports ============================
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+//import com.acmerobotics.roadrunner.geometry.Pose2d;
+//import com.acmerobotics.roadrunner.geometry.Vector2d;
+//import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+//import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+//import com.qualcomm.robotcore.hardware.DcMotor;
+//
+//import org.firstinspires.ftc.robotcore.external.Telemetry;
+//import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+//import org.firstinspires.ftc.teamcode.drive.opmode.auton.AprilTagDetectionPipeline;
+//import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.openftc.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.ArrayList;
 
 /*
  * This OpMode illustrates how to use the DFRobot HuskyLens.
@@ -58,7 +81,8 @@ import java.util.concurrent.TimeUnit;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@TeleOp(name = "Sensor: HuskyLens_Pixel", group = "Sensor")
+//@TeleOp
+@Autonomous(name = "Sensor: HuskyLens_Pixel", group = "Sensor")
 //@Disabled
 @Config
 public class SensorHuskyLens_Pixel extends LinearOpMode {
@@ -81,11 +105,27 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
     double integral = 0; // the place where we will story our integral
     double lastError = 0; // the place where we will store the last error value
     double derivative = 0; // the place where we will store the derivative
-    double v1 = 0;
+    double v1 = 1.5;
     double xvalue, error, Turn, frontRight, frontLeft, backRight, backLeft;
 
-    boolean isColor1 = true;
-    boolean isColor3 = true;
+// ============================ EasyOpenCV double initialization ============================
+
+    double fx = 578.272;
+    double fy = 578.272;
+    double cx = 402.145;
+    double cy = 221.506;
+    double tagsize = 0.166;
+
+    // Tag ID 1,2,3 from the 36h11 family
+    int LEFT = 1;
+    int MIDDLE = 2;
+    int RIGHT = 3;
+    AprilTagDetection tagOfInterest = null;
+// ============================ EasyOpenCV int initialization ============================
+
+    boolean isBlock1 = true;
+    boolean isBlock2 = true;
+    boolean isBlock3 = true;
 //    boolean isQrcode2 = true;
 
     public DcMotor leftFront = null;
@@ -107,6 +147,8 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
 
+        telemetry.update();
+        waitForStart();
         // Initialize the drive system variables.
 //        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
 //        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
@@ -137,9 +179,9 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
 //        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -180,8 +222,8 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
          * found in the enumeration HuskyLens.Algorithm.
          */
 
-        telemetry.update();
-        waitForStart();
+//        telemetry.update();
+//        waitForStart();
 
         /*
          * Looking for AprilTags per the call to selectAlgorithm() above.  A handy grid
@@ -209,40 +251,72 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
             telemetry.addData("Blocks", blocks);
-            isColor1 = false;
-            isColor3 = false;
+            isBlock1 = false;
+            isBlock2 = false;
+            isBlock3 = false;
             xvalue = 300;
             for (int i = 0; i < blocks.length; i++) {
-                telemetry.addData("Block", blocks[i].toString());
 
-                if (blocks[i].id == 1) {
+                if (blocks[i].id == 1) { //blue
                     xvalue = blocks[i].x;
-                    isColor1 = true;
-
+                    isBlock1 = true;
                 }
 
-
-//                if (blocks[i].id == 2) {
-//                    isQrcode2 = true;
-//                }
-
-                if (blocks[i].id == 3) {
-                    isColor3 = true;
+                if (blocks[i].id == 2) { //red
+                    xvalue = blocks[i].x;
+                    isBlock2 = true;
                 }
             }
 
+            if (isBlock1 || isBlock2) {
+                telemetry.addData("Block", blocks[0].id);
+                telemetry.addData("xValue", blocks[0].x);
+            }
 //            if ((isQrcode2) && (!isQrcode1)) {
 //                error = -75;
 //            }
 
+//          THE FOLLOWING IS INTEGRATED UNDER SPIKE MARK LINE IDENTIFICATION
             //else
 //            if ((isColor3) &&
-            if (!isColor1) {
-                error = -100;
+//            if (!isBlock1) {
+//                error = -100;
+//            }
+//            else {
+//                error = xvalue - offset;
+//            }
+
+            // ================== SPIKE MARK LINE IDENTIFICATION ======================
+            /* Pseudocode Sequence of steps:
+            1. If spike mark is not identified, then spike mark position is left
+            2. If spike mark is center (between 150-170), then spike mark is central
+            3. If spike mark is right (> 170), then spike mark is right
+
+             */
+
+
+            if (isBlock1) {
+                offset = -100;
             }
             else {
                 error = xvalue - offset;
             }
+
+            if (!isBlock2) {
+                //offset = -100;
+                telemetry.addData("Spike Position --> ","Left Tape");
+            }
+            else {
+                //error = xvalue - offset;
+                if (error < 160) {
+                    telemetry.addData("Spike Position -->","Center Tape");
+                }
+                else
+                {
+                    telemetry.addData("Spike Position -->","Right Tape");
+                }
+            }
+            // ========================================================================
 
 
             integral = integral + error;
@@ -270,23 +344,23 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             v1 = 1 * Turn;
 
 
-            leftFront.setPower(-v1);
+            leftFront.setPower(v1);
             rightFront.setPower(v1);
-            leftBack.setPower(-v1);
+            leftBack.setPower(v1);
             rightBack.setPower(v1);
 
 
-            if (isColor1 == true && offset > 150 && offset < 170) {
-
-                leftFront.setPower(0 * -v1);
-                rightFront.setPower(0 * v1);
-                leftBack.setPower(0 * -v1);
-                rightBack.setPower(0 * v1);
-
-            }
+//            if (isColor1 == true && offset > 155 && offset < 165) {
+//
+//                leftFront.setPower(0 * -v1);
+//                rightFront.setPower(0 * v1);
+//                leftBack.setPower(0 * -v1);
+//                rightBack.setPower(0 * v1);
+//
+//            }
 
 //             Step through each leg of the path,
-            if (isColor1 == true) {
+            if (isBlock1 == true) {
                 driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
 //                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
 //                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
@@ -301,17 +375,24 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 //
 //                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
             }
-
+            if (isBlock2 == true) {
+                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+            }
+            if (isBlock3 == true) {
+                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+            }
 
             telemetry.addData("Path", "Complete");
-            telemetry.update();
-            sleep(1000);  // Pause to display last telemetry message.
+//            telemetry.update();
+//            sleep(1000);  // Pause to display last telemetry message.
 
             telemetry.addData("speed", v1);
             telemetry.addData("error", error);
             telemetry.update();
         }
     }
+
+
 
 
     private void driveStraight(double driveSpeed, double v, double v1) {
