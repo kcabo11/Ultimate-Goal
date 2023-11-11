@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -59,11 +60,32 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
     public DcMotor  rightBack   = null;
 
 
-    public DcMotor  leftArm     = null;
-    public Servo    leftClaw    = null;
-    public Servo    rightClaw   = null;
+    public DcMotor  liftMotor     = null;
+    public Servo    linearSlide    = null;
+    //public Servo    rightClaw   = null;
+
+    // ============= POSSIBLE SERVOS: ========
+    public Servo leftPixelLatch = null;
+    public Servo rightPixelLatch = null;
+    // =======================================
+    public Servo pixelPlacer = null;
+    public CRServo intakeLeft = null;
+    public CRServo intakeRight = null;
+
 
     double clawOffset = 0;
+    double scaleTurningSpeed = .8;
+    double scaleFactor = .8;
+    int direction = -1;
+
+    //  WHERE WOULD INTAKE BE PLACED HERE IN THE INITIALIZATION??
+    // Initialize the following:
+    // Linear slide ~~ servo
+    // Intake (left and right) ~~ servo
+    // Pixel placer ~~ servo
+    // Left pixel latch ~~ possible servo
+    // Right pixel latch ~~ possible servo
+
 
     public static final double MID_SERVO   =  0.5 ;
     public static final double CLAW_SPEED  = 0.02 ;                 // sets rate to move servo
@@ -95,10 +117,21 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
+        // NO NEED FOR ENCODERS!!!
         // leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Define and initialize ALL installed servos.
+        intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
+        intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
+        linearSlide = hardwareMap.get(Servo.class, "linearSlide");
+        pixelPlacer = hardwareMap.get(Servo.class, "pixelPlacer");
+
+        // Possible Servos:
+        leftPixelLatch = hardwareMap.get(Servo.class, "leftPixelLatch");
+        rightPixelLatch = hardwareMap.get(Servo.class, "rightPixelLatch");
+
+
         // Send telemetry message to signify robot waiting;
         telemetry.addData(">", "Robot Ready.  Press Play.");    //
         telemetry.update();
@@ -109,54 +142,81 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            // ========================== DRIVE CONTROLLER ================================================
+
             // Run wheels in POV mode (note: The joystick goes negative when pushed forward, so negate it)
             // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
             // This way it's also easy to just drive straight, or just turn.
-            drive = -gamepad1.left_stick_y;
-            turn  =  gamepad1.right_stick_x;
+            // When the direction value is reversed this if statement inverts the addition and subtraction for turning.
 
-            // Combine drive and turn for blended motion.
-            left  = drive + turn;
-            right = drive - turn;
+            double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
+            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
+            double rightX = gamepad1.right_stick_x;
 
-            // Normalize the values so neither exceed +/- 1.0
-            max = Math.max(Math.abs(left), Math.abs(right));
-            if (max > 1.0)
-            {
-                left /= max;
-                right /= max;
+            // Default mode: The robot starts with the scaleTurningSpeed set to 1, scaleFactor set to 1, and direction set to forward.
+            if (direction == 1) {
+                final double v1 = (r * Math.cos(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v2 = (r * Math.sin(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v3 = (r * Math.sin(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v4 = (r * Math.cos(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                leftFront.setPower(v3);
+                rightFront.setPower(v2);
+                leftBack.setPower(v3);
+                rightBack.setPower(v4);
+            } else {
+                final double v1 = (r * Math.cos(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v2 = (r * Math.sin(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v3 = (r * Math.sin(robotAngle) + (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                final double v4 = (r * Math.cos(robotAngle) - (rightX * scaleTurningSpeed)) * scaleFactor * direction;
+                leftFront.setPower(v1);
+                rightFront.setPower(v2);
+                leftBack.setPower(v3);
+                rightBack.setPower(v4);
             }
-
-            // Output the safe vales to the motor drives.
-            leftBack.setPower(left);
-            leftFront.setPower(left);
-            rightFront.setPower(right);
-            rightBack.setPower(right);
 
             //moving frontright changes the front left value
             //front left changes the right front value
             //left back changes left back
-            //ribht back should change the right back
+            //right back should change the right back
 
-            // Use gamepad left & right Bumpers to open and close the claw
-            if (gamepad1.right_bumper)
-                clawOffset += CLAW_SPEED;
-            else if (gamepad1.left_bumper)
-                clawOffset -= CLAW_SPEED;
+            if (gamepad1.y) // DOUBLE TAPPED!!
+                // shoot airplane
+
+
+            // ========================== OPERATOR CONTROLLER ===========================================
+
+            intakeLeft.setPower(1);
+            intakeRight.setPower(-1);
+
+            //D pad or bumper: up/down for linear slide
+
+            // Use gamepad left & right triggers to manage intake and outake
+//            if (gamepad2.right_trigger)
+//                //clawOffset += CLAW_SPEED;
+//                //intakeRight
+//
+//            else if (gamepad2.left_trigger)
+//                //clawOffset -= CLAW_SPEED;
+//                //intakeLeft
 
             // Move both servos to new position.  Assume servos are mirror image of each other.
-            clawOffset = Range.clip(clawOffset, -0.5, 0.5);
+            //clawOffset = Range.clip(clawOffset, -0.5, 0.5);
 //            leftClaw.setPosition(MID_SERVO + clawOffset);
 //            rightClaw.setPosition(MID_SERVO - clawOffset);
 
-            // Use gamepad buttons to move arm up (Y) and down (A)
-//            if (gamepad1.y)
-//                leftArm.setPower(ARM_UP_POWER);
-//            else if (gamepad1.a)
-//                leftArm.setPower(ARM_DOWN_POWER);
+//            // Use gamepad button (A) to bring up main plate
+//            if (gamepad2.a)
+//                //pixelPlacer.setPosition();
+//                // release pixels
+//                else if (gamepad2.x)
+//                    //open left pixel latch
+//                    else if (gamepad2.b)
+                        //open right pixel latch
 //            else
 //                leftArm.setPower(0.0);
 
+
+            // ==================================== TELEMETRY =========================================
             // Send telemetry message to signify robot running;
 
             telemetry.addData("leftFront: ", leftFront.getCurrentPosition());
@@ -164,6 +224,8 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
             telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
             telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
             telemetry.update();
+
+            //
 
             // Pace this loop so jaw action is reasonable speed.
             sleep(50);
