@@ -145,7 +145,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
     public void runOpMode() {
 
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_CLASSIFICATION);
 
         telemetry.update();
         waitForStart();
@@ -222,8 +222,8 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
          * found in the enumeration HuskyLens.Algorithm.
          */
 
-//        telemetry.update();
-//        waitForStart();
+        telemetry.update();
+        waitForStart();
 
         /*
          * Looking for AprilTags per the call to selectAlgorithm() above.  A handy grid
@@ -250,12 +250,12 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
-            telemetry.addData("Blocks", blocks);
             isBlock1 = false;
             isBlock2 = false;
             isBlock3 = false;
             xvalue = 300;
             for (int i = 0; i < blocks.length; i++) {
+                telemetry.addData("Block", blocks[i].toString());
 
                 if (blocks[i].id == 1) { //blue
                     xvalue = blocks[i].x;
@@ -268,11 +268,6 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
                 }
             }
 
-            if (isBlock1 || isBlock2) {
-
-                telemetry.addData("Block", blocks[0].id);
-                telemetry.addData("xValue", blocks[0].x);
-            }
 //            if ((isQrcode2) && (!isQrcode1)) {
 //                error = -75;
 //            }
@@ -334,6 +329,7 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
             } else if (Turn < -MIN_TURN_SPD) {
                 Turn = MIN_TURN_SPD;
             }
+            telemetry.addData("Error", error);
 
             //
 
@@ -344,11 +340,11 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 
             v1 = 1 * Turn;
 
-
-            leftFront.setPower(v1);
-            rightFront.setPower(v1);
-            leftBack.setPower(v1);
-            rightBack.setPower(v1);
+// !!!!!!!!!!!!!!!
+//            leftFront.setPower(v1);
+//            rightFront.setPower(v1);
+//            leftBack.setPower(v1);
+//            rightBack.setPower(v1);
 
 
 //            if (isColor1 == true && offset > 155 && offset < 165) {
@@ -359,29 +355,29 @@ public class SensorHuskyLens_Pixel extends LinearOpMode {
 //                rightBack.setPower(0 * v1);
 //
 //            }
-
-//             Step through each leg of the path,
-            if (isBlock1 == true) {
-                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
-//                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-//                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
 //
-//                driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-//                turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
-//                holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
-//
-//                driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-//                turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
-//                holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
-//
-//                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
-            }
-            if (isBlock2 == true) {
-                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
-            }
-            if (isBlock3 == true) {
-                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
-            }
+////             Step through each leg of the path,
+//            if (isBlock1 == true) {
+//                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+////                turnToHeading(TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
+////                holdHeading(TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
+////
+////                driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
+////                turnToHeading(TURN_SPEED, 45.0);               // Turn  CCW  to  45 Degrees
+////                holdHeading(TURN_SPEED, 45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
+////
+////                driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
+////                turnToHeading(TURN_SPEED, 0.0);               // Turn  CW  to 0 Degrees
+////                holdHeading(TURN_SPEED, 0.0, 1.0);    // Hold  0 Deg heading for 1 second
+////
+////                driveStraight(DRIVE_SPEED, -48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
+//            }
+//            if (isBlock2 == true) {
+//                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+//            }
+//            if (isBlock3 == true) {
+//                driveStraight(DRIVE_SPEED, 1.0, 0.2);    // Drive Forward 1"
+//            }
 
             telemetry.addData("Path", "Complete");
 //            telemetry.update();
