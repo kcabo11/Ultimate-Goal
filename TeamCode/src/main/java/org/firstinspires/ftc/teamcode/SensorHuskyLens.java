@@ -88,15 +88,14 @@ public class SensorHuskyLens extends LinearOpMode {
     boolean isQrcode3 = false;
     boolean isQrcode2 = false;
 
-    public DcMotor leftFront   = null;
-    public DcMotor  rightFront  = null;
-    public DcMotor  leftBack     = null;
-    public DcMotor  rightBack   = null;
+    public DcMotor leftFront = null;
+    public DcMotor rightFront = null;
+    public DcMotor leftBack = null;
+    public DcMotor rightBack = null;
 
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
 
         huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
 
@@ -113,10 +112,10 @@ public class SensorHuskyLens extends LinearOpMode {
         rateLimit.expire();
 
 
-        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
 
 
         leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -134,122 +133,118 @@ public class SensorHuskyLens extends LinearOpMode {
          */
         if (!huskyLens.knock()) {
             telemetry.addData(">>", "Problem communicating with " + huskyLens.getDeviceName());
-//        } else {
-//            telemetry.addData(">>", "Press start to continue");
-//        }
-
-        /*
-         * The device uses the concept of an algorithm to determine what types of
-         * objects it will look for and/or what mode it is in.  The algorithm may be
-         * selected using the scroll wheel on the device, or via software as shown in
-         * the call to selectAlgorithm().
-         *
-         * The SDK itself does not assume that the user wants a particular algorithm on
-         * startup, and hence does not set an algorithm.
-         *
-         * Users, should, in general, explicitly choose the algorithm they want to use
-         * within the OpMode by calling selectAlgorithm() and passing it one of the values
-         * found in the enumeration HuskyLens.Algorithm.
-         */
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
-
-        telemetry.update();
-        waitForStart();
-
-        /*
-         * Looking for AprilTags per the call to selectAlgorithm() above.  A handy grid
-         * for testing may be found at https://wiki.dfrobot.com/HUSKYLENS_V1.0_SKU_SEN0305_SEN0336#target_20.
-         *
-         * Note again that the device only recognizes the 36h11 family of tags out of the box.
-         */
-        while(opModeIsActive()) {
-            if (!rateLimit.hasExpired()) {
-                continue;
-            }
-            rateLimit.reset();
+        } else if (huskyLens.knock()) {
+            telemetry.addData(">>", "Press start to continue");
+        }
 
             /*
-             * All algorithms, except for LINE_TRACKING, return a list of Blocks where a
-             * Block represents the outline of a recognized object along with its ID number.
-             * ID numbers allow you to identify what the device saw.  See the HuskyLens documentation
-             * referenced in the header comment above for more information on IDs and how to
-             * assign them to objects.
+             * The device uses the concept of an algorithm to determine what types of
+             * objects it will look for and/or what mode it is in.  The algorithm may be
+             * selected using the scroll wheel on the device, or via software as shown in
+             * the call to selectAlgorithm().
              *
-             * Returns an empty array if no objects are seen.
+             * The SDK itself does not assume that the user wants a particular algorithm on
+             * startup, and hence does not set an algorithm.
+             *
+             * Users, should, in general, explicitly choose the algorithm they want to use
+             * within the OpMode by calling selectAlgorithm() and passing it one of the values
+             * found in the enumeration HuskyLens.Algorithm.
              */
-            HuskyLens.Block[] blocks = huskyLens.blocks();
-            telemetry.addData("Block count", blocks.length);
-            telemetry.addData("Blocks", blocks);
-            isQrcode1 = false;
-            isQrcode3 = false;
-            xvalue = 300;
-            for (int i = 0; i < blocks.length; i++) {
-                telemetry.addData("Block", blocks[i].toString());
+            huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
 
-                if (blocks[i].id == 1) {
-                    xvalue = blocks[i].x;
-                    isQrcode1 = true;
-                }
-
-                if (blocks[i].id == 2) {
-                    isQrcode2 = true;
-                }
-
-                if (blocks[i].id == 3) {
-                    isQrcode3 = true;
-                }
-            }
-
-            if ((isQrcode2) && (!isQrcode1)) {
-                error = -75;
-            }
-
-            else if ((isQrcode3) && (!isQrcode1)) {
-                error = -100;
-            }
-            else {
-                error = xvalue - offset;
-            }
-
-            if (isQrcode3 == true) {
-                v1 = -1 * Turn;
-            }
-
-            v1 = 1*Turn;
-
-
-
-            integral = integral + error;
-            derivative = error - lastError;
-            Turn = Kp * error + Ki * integral + Kd * derivative;
-            frontRight = Tp + Turn;
-            frontLeft = Tp + Turn;
-            backRight = Tp - Turn;
-            backLeft = Tp - Turn;
-            lastError = error;
-
-            if (Turn>MAX_TURN_SPD) {
-                Turn = MAX_TURN_SPD;
-            } else if (Turn < -MIN_TURN_SPD) {
-                Turn = MIN_TURN_SPD;
-            }
-
-
-            leftFront.setPower(-v1);
-            rightFront.setPower(v1);
-            leftBack.setPower(-v1);
-            rightBack.setPower(v1);
-
-            telemetry.addData("speed", v1);
-            telemetry.addData("error", error);
-            telemetry.addData("leftFront: ", leftFront.getCurrentPosition());
-            telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
-            telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
-            telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
             telemetry.update();
+            waitForStart();
+
+            /*
+             * Looking for AprilTags per the call to selectAlgorithm() above.  A handy grid
+             * for testing may be found at https://wiki.dfrobot.com/HUSKYLENS_V1.0_SKU_SEN0305_SEN0336#target_20.
+             *
+             * Note again that the device only recognizes the 36h11 family of tags out of the box.
+             */
+            while (opModeIsActive()) {
+                if (!rateLimit.hasExpired()) {
+                    continue;
+                }
+                rateLimit.reset();
+
+                /*
+                 * All algorithms, except for LINE_TRACKING, return a list of Blocks where a
+                 * Block represents the outline of a recognized object along with its ID number.
+                 * ID numbers allow you to identify what the device saw.  See the HuskyLens documentation
+                 * referenced in the header comment above for more information on IDs and how to
+                 * assign them to objects.
+                 *
+                 * Returns an empty array if no objects are seen.
+                 */
+                HuskyLens.Block[] blocks = huskyLens.blocks();
+                telemetry.addData("Block count", blocks.length);
+                telemetry.addData("Blocks", blocks);
+                isQrcode1 = false;
+                isQrcode3 = false;
+                xvalue = 300;
+                for (int i = 0; i < blocks.length; i++) {
+                    telemetry.addData("Block", blocks[i].toString());
+
+                    if (blocks[i].id == 1) {
+                        xvalue = blocks[i].x;
+                        isQrcode1 = true;
+                    }
+
+                    if (blocks[i].id == 2) {
+                        isQrcode2 = true;
+                    }
+
+                    if (blocks[i].id == 3) {
+                        isQrcode3 = true;
+                    }
+                }
+
+                if ((isQrcode2) && (!isQrcode1)) {
+                    error = -75;
+                } else if ((isQrcode3) && (!isQrcode1)) {
+                    error = -100;
+                } else {
+                    error = xvalue - offset;
+                }
+
+                if (isQrcode3 == true) {
+                    v1 = -1 * Turn;
+                }
+
+                v1 = 1 * Turn;
+
+
+                integral = integral + error;
+                derivative = error - lastError;
+                Turn = Kp * error + Ki * integral + Kd * derivative;
+                frontRight = Tp + Turn;
+                frontLeft = Tp + Turn;
+                backRight = Tp - Turn;
+                backLeft = Tp - Turn;
+                lastError = error;
+
+                if (Turn > MAX_TURN_SPD) {
+                    Turn = MAX_TURN_SPD;
+                } else if (Turn < -MIN_TURN_SPD) {
+                    Turn = MIN_TURN_SPD;
+                }
+
+
+                leftFront.setPower(-v1);
+                rightFront.setPower(v1);
+                leftBack.setPower(-v1);
+                rightBack.setPower(v1);
+
+                telemetry.addData("speed", v1);
+                telemetry.addData("error", error);
+                telemetry.addData("leftFront: ", leftFront.getCurrentPosition());
+                telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
+                telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
+                telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
+                telemetry.update();
+            }
         }
     }
-}
 
 
 
