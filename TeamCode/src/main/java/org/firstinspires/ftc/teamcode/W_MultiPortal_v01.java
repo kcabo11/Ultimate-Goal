@@ -223,6 +223,33 @@ public class W_MultiPortal_v01 extends LinearOpMode {
     }
   }
 
+  private void OpenCV_telemetry_for_Portal_2() {
+    List<AprilTagDetection> myAprilTagDetections_2;
+    AprilTagDetection thisDetection_2;
+
+    // Get a list of AprilTag detections.
+    myAprilTagDetections_2 = myAprilTagProcessor_2.getDetections();
+    telemetry.addLine("");
+    telemetry.addData("Portal 2 - # AprilTags Detected", JavaUtil.listLength(myAprilTagDetections_2));
+    // Iterate through list and call a function to display info for each recognized AprilTag.
+    for (AprilTagDetection thisDetection_2_item : myAprilTagDetections_2) {
+      thisDetection_2 = thisDetection_2_item;
+      // Display info about the detection.
+      telemetry.addLine("");
+      if (thisDetection_2.metadata != null) {
+        telemetry.addLine("==== (ID " + thisDetection_2.id + ") " + thisDetection_2.metadata.name);
+        telemetry.addLine("XYZ " + JavaUtil.formatNumber(thisDetection_2.ftcPose.x, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.y, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.z, 6, 1) + "  (inch)");
+        telemetry.addLine("PRY " + JavaUtil.formatNumber(thisDetection_2.ftcPose.yaw, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.pitch, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.roll, 6, 1) + "  (deg)");
+        telemetry.addLine("RBE " + JavaUtil.formatNumber(thisDetection_2.ftcPose.range, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.bearing, 6, 1) + " " + JavaUtil.formatNumber(thisDetection_2.ftcPose.elevation, 6, 1) + "  (inch, deg, deg)");
+      } else {
+        telemetry.addLine("==== (ID " + thisDetection_2.id + ") Unknown");
+        telemetry.addLine("Center " + JavaUtil.formatNumber(thisDetection_2.center.x, 6, 0) + "" + JavaUtil.formatNumber(thisDetection_2.center.y, 6, 0) + " (pixels)");
+      }
+    }
+  }
+
+
+
   /**
    * Describe this function...
    */
