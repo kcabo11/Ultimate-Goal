@@ -30,8 +30,8 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
 
     private IMU imu = null;      // Control/Expansion Hub IMU
 
-    static final double FORWARD_SPEED = 0.2;
-    static final double TURN_SPEED = 0.5;
+    static final double FORWARD_SPEED = 0.3;
+    static final double TURN_SPEED = 0.3;
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -67,7 +67,6 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         double strafe = 0;        // Desired strafe power/speed (-1 to +1)
         double turn = 0;        // Desired turning power/speed (-1 to +1)
 
-
         // Initialize the drive system variables.
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
@@ -81,8 +80,8 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
 //        leftBack.setDirection(DcMotor.Direction.FORWARD);
 //        rightFront.setDirection(DcMotor.Direction.REVERSE);
 //        rightBack.setDirection(DcMotor.Direction.REVERSE);
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
         //rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         /* The next two lines define Hub orientation.
@@ -90,21 +89,21 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
          *
          * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.DOWN;
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.DOWN;
+//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
 
         // Now initialize the IMU with this mounting orientation
         // This sample expects the IMU to be in a REV Hub and named "imu".
         // NOTE: we do plan to use timed turning for Nov 18 tournament
-        imu = hardwareMap.get(IMU.class, "imu");
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+//        imu = hardwareMap.get(IMU.class, "imu");
+//        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -115,20 +114,23 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // =========================================================================================
         // Wait for the game to start (Display Gyro value while waiting)
-//        while (opModeInInit()) {
+        while (opModeInInit()) {
 //            telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
-//            telemetry.update();
-//        }
-//                ============================== ORRRRR ======================================
+            telemetry.addData("middle sat", visionProcessor.satRectMiddle);
+            telemetry.addData("left sat", visionProcessor.satRectLeft);
+            telemetry.addData("sat delta", visionProcessor.satAverage);
+            telemetry.addData("position", visionProcessor.getSelection());
+            telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
+            telemetry.addData(">", "Touch Play to start OpMode");
+            telemetry.update();
+        }
+        //        ============================== ORRRRR ======================================
         // Wait for driver to press start
-        telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch Play to start OpMode");
-        telemetry.update();
         waitForStart();
         // =========================================================================================
 
 
-        if (visionProcessor.getSelection() == FirstVisionProcessor.Selected.NONE) {
+        if (false){//(visionProcessor.getSelection() == FirstVisionProcessor.Selected.NONE) {
             // ASSUMING SPIKE MARK IS MIDDLE POSITION
             // ==================================== Step 1: Drive forward for 2 seconds ====================================
 
@@ -152,6 +154,7 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
                 telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
                 telemetry.update();
             }
+            sleep(1000);
 //
 //            // Step 3:  Drive Backward for 1 Second
 //            leftDrive.setPower(-FORWARD_SPEED);
@@ -179,7 +182,7 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
             rightBack.setPower(-TURN_SPEED);
             leftBack.setPower(TURN_SPEED);
             runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < .45)) {
+            while (opModeIsActive() && (runtime.seconds() < .6)) {
                 telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
                 telemetry.update();
             }

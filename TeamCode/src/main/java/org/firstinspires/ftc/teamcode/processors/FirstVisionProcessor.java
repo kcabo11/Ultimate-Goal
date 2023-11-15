@@ -12,13 +12,16 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class FirstVisionProcessor implements VisionProcessor {
-	public Rect rectLeft = new Rect(110, 42, 40, 40);
-	public Rect rectMiddle = new Rect(160, 42, 40, 40);
-	public Rect rectRight = new Rect(210, 42, 40, 40);
+	public Rect rectLeft = new Rect(5, 350, 100, 100);
+	public Rect rectMiddle = new Rect(290, 350, 100, 100);
+	//public Rect rectRight = new Rect(300, 350, 100, 100);
 	Selected selection = Selected.NONE;
 
 	Mat submat = new Mat();
 	Mat hsvMat = new Mat();
+
+	public double satRectLeft;
+	public double satRectMiddle, satAverage;
 
 	@Override
 	public void init(int width, int height, CameraCalibration calibration) {
@@ -28,13 +31,18 @@ public class FirstVisionProcessor implements VisionProcessor {
 	public Object processFrame(Mat frame, long captureTimeNanos) {
 		Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
 
-		double satRectLeft = getAvgSaturation(hsvMat, rectLeft);
-		double satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
-		double satRectRight = getAvgSaturation(hsvMat, rectRight);
+		//double satRectRight = getAvgSaturation(hsvMat, rectRight);
+		satRectLeft = getAvgSaturation(hsvMat, rectLeft);
+		satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
+		satAverage = (satRectLeft - satRectMiddle) / (satRectLeft);
 
-		if ((satRectLeft > satRectMiddle) && (satRectLeft > satRectRight)) {
+		if ((satAverage > -.25) && (satAverage < .25)) {
+			return Selected.RIGHT;
+		}
+		else if (satRectLeft > satRectMiddle) {
 			return Selected.LEFT;
-		} else if ((satRectMiddle > satRectLeft) && (satRectMiddle > satRectRight)) {
+		}
+		else if (satRectMiddle > satRectLeft) { //&& (satRectMiddle > satRectRight)) {
 			return Selected.MIDDLE;
 		}
 		return Selected.RIGHT;
@@ -68,29 +76,29 @@ public class FirstVisionProcessor implements VisionProcessor {
 
 		android.graphics.Rect drawRectangleLeft = makeGraphicsRect(rectLeft, scaleBmpPxToCanvasPx);
 		android.graphics.Rect drawRectangleMiddle = makeGraphicsRect(rectMiddle, scaleBmpPxToCanvasPx);
-		android.graphics.Rect drawRectangleRight = makeGraphicsRect(rectRight, scaleBmpPxToCanvasPx);
+		//android.graphics.Rect drawRectangleRight = makeGraphicsRect(rectRight, scaleBmpPxToCanvasPx);
 
 		selection = (Selected) userContext;
 		switch (selection) {
 			case LEFT:
 				canvas.drawRect(drawRectangleLeft, selectedPaint);
 				canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
-				canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+				//canvas.drawRect(drawRectangleRight, nonSelectedPaint);
 				break;
 			case MIDDLE:
 				canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
 				canvas.drawRect(drawRectangleMiddle, selectedPaint);
-				canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+				//canvas.drawRect(drawRectangleRight, nonSelectedPaint);
 				break;
 			case RIGHT:
 				canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
 				canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
-				canvas.drawRect(drawRectangleRight, selectedPaint);
+				//canvas.drawRect(drawRectangleRight, selectedPaint);
 				break;
 			case NONE:
 				canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
 				canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
-				canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+				//canvas.drawRect(drawRectangleRight, nonSelectedPaint);
 				break;
 		}
 	}
