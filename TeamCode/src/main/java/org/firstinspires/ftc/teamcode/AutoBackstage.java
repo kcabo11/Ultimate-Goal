@@ -40,19 +40,35 @@ public class AutoBackstage extends LinearOpMode {
         //
         initGyro();
         //
-        frontleft = hardwareMap.dcMotor.get("leftfront");
-        frontright = hardwareMap.dcMotor.get("rightfront");
-        backleft = hardwareMap.dcMotor.get("leftback");
-        backright = hardwareMap.dcMotor.get("rightback");
+        frontleft = hardwareMap.dcMotor.get("leftFront");
+        frontright = hardwareMap.dcMotor.get("rightFront");
+        backleft = hardwareMap.dcMotor.get("leftBack");
+        backright = hardwareMap.dcMotor.get("rightBack");
 
-        frontright.setDirection(DcMotorSimple.Direction.REVERSE);
-        backright.setDirection(DcMotorSimple.Direction.REVERSE);
-        //
+        frontleft.setDirection(DcMotor.Direction.REVERSE);
+        backleft.setDirection(DcMotor.Direction.REVERSE);
+
+        frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("counts per inch", cpi);
+        telemetry.addData("counts per revolution", cpr);
+        telemetry.addData("gear ratio", gearratio);
+        telemetry.addData("conversion", conversion);
+
+        telemetry.update();
         waitForStart();
         //
-        moveToPosition(28.4, 0.2);
+//        moveToPosition(20, 0.2);
         //
-        turnWithGyro(90, 0.2);
+        turnWithGyro(90, 0.05);
         //
     }
     //
@@ -64,22 +80,45 @@ public class AutoBackstage extends LinearOpMode {
         //
         int move = (int)(Math.round(inches*conversion));
         //
-        backleft.setTargetPosition(backleft.getCurrentPosition() + move);
+//        backleft.setTargetPosition(backleft.getCurrentPosition() + move);
         frontleft.setTargetPosition(frontleft.getCurrentPosition() + move);
-        backright.setTargetPosition(backright.getCurrentPosition() + move);
-        frontright.setTargetPosition(frontright.getCurrentPosition() + move);
+//        backright.setTargetPosition(backright.getCurrentPosition() + move);
+//        frontright.setTargetPosition(frontright.getCurrentPosition() + move);
+        //
+        telemetry.addData("fl curr", frontleft.getCurrentPosition());
+        telemetry.addData("fr curr", frontright.getCurrentPosition());
+        telemetry.addData("bl curr", backleft.getCurrentPosition());
+        telemetry.addData("br curr", backright.getCurrentPosition());
+        telemetry.addData("fl tgt", frontleft.getTargetPosition());
+        telemetry.addData("fr tgt", frontright.getTargetPosition());
+        telemetry.addData("bl tgt", backleft.getTargetPosition());
+        telemetry.addData("br tgt", backright.getTargetPosition());
+        telemetry.update();
+        sleep(1000);
         //
         frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        //
+        frontleft.setPower(.05);
+//        backleft.setPower(speed);
+//        frontright.setPower(speed);
+//        backright.setPower(speed);
         //
-        frontleft.setPower(speed);
-        backleft.setPower(speed);
-        frontright.setPower(speed);
-        backright.setPower(speed);
-        //
-        while (frontleft.isBusy() && frontright.isBusy() && backleft.isBusy() && backright.isBusy()){
+        while (frontleft.isBusy())// && frontright.isBusy() && backleft.isBusy() && backright.isBusy()){
+        {
+
+            telemetry.addData("fl curr", frontleft.getCurrentPosition());
+            telemetry.addData("fr curr", frontright.getCurrentPosition());
+            telemetry.addData("bl curr", backleft.getCurrentPosition());
+            telemetry.addData("br curr", backright.getCurrentPosition());
+            telemetry.addData("fl isbusy", frontleft.isBusy());
+            telemetry.addData("fr isbusy", frontright.isBusy());
+            telemetry.addData("bl isbusy", backleft.isBusy());
+            telemetry.addData("br isbusy", backright.isBusy());
+            telemetry.update();
+
             if (exit){
                 frontright.setPower(0);
                 frontleft.setPower(0);
@@ -92,6 +131,16 @@ public class AutoBackstage extends LinearOpMode {
         frontleft.setPower(0);
         backright.setPower(0);
         backleft.setPower(0);
+        telemetry.addData("fl curr", frontleft.getCurrentPosition());
+        telemetry.addData("fr curr", frontright.getCurrentPosition());
+        telemetry.addData("bl curr", backleft.getCurrentPosition());
+        telemetry.addData("br curr", backright.getCurrentPosition());
+        telemetry.addData("fl isbusy", frontleft.isBusy());
+        telemetry.addData("fr isbusy", frontright.isBusy());
+        telemetry.addData("bl isbusy", backleft.isBusy());
+        telemetry.addData("br isbusy", backright.isBusy());
+        telemetry.update();
+        sleep(10000);
         return;
     }
     //

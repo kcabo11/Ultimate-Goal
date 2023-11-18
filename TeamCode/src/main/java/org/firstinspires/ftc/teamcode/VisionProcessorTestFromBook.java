@@ -38,11 +38,10 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
 
     private IMU imu = null;      // Control/Expansion Hub IMU
 
-    static final double FORWARD_SPEED = 0.3;
-    static final double REVERSE_SPEED = -0.3;
-    static final double TURN_SPEED = 0.3;
+    static /* final */ double FORWARD_SPEED = 0.3;
+    static /* final */ double REVERSE_SPEED = -0.3;
+    static /* final */ double TURN_SPEED = 0.3;
     private ElapsedTime runtime = new ElapsedTime();
-
 
     // ==================================== Auto Drive to April Tag Omni Initialization =================================================
     final double DESIRED_DISTANCE = 12.0; //  this is how close the camera should get to the target (inches)
@@ -67,16 +66,22 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
     public void runOpMode() {
 
         // Initialize the Apriltag Detection process and Webcam 2
-        initAprilTag();
 
         visionProcessor = new FirstVisionProcessor();
         visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "Webcam 1"), visionProcessor);
+        //        visionPortal.resumeStreaming();
+//        visionPortal_2.resumeLiveView();
+
+        initAprilTag();
+//        setManualExposure(6, 250);
+//        visionPortal_2.stopStreaming();
+//        visionPortal_2.stopLiveView();
+
 
         telemetry.addData("Identified", visionProcessor.getSelection());
         telemetry.addData("RectLeft Saturation: ", visionProcessor.satRectLeft);
         telemetry.addData("RectMiddle Saturation: ", visionProcessor.satRectMiddle);
         telemetry.addData("Average Saturation: ", visionProcessor.satAverage);
-
 
         // Initialize the drive system variables.
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
@@ -84,37 +89,9 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
 
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-//        leftFront.setDirection(DcMotor.Direction.FORWARD);
-//        leftBack.setDirection(DcMotor.Direction.FORWARD);
-//        rightFront.setDirection(DcMotor.Direction.REVERSE);
-//        rightBack.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
-        //rightBack.setDirection(DcMotor.Direction.REVERSE);
 
-        /* The next two lines define Hub orientation.
-         * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
-         *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
-         */
-//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
-//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.DOWN;
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        // Now initialize the IMU with this mounting orientation
-        // This sample expects the IMU to be in a REV Hub and named "imu".
-        // NOTE: we do plan to use timed turning for Nov 18 tournament
-//        imu = hardwareMap.get(IMU.class, "imu");
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
-
-        // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-//        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -123,7 +100,7 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // =========================================================================================
+
         // Wait for the game to start (Display Gyro value while waiting)
         while (opModeInInit()) {
 //            telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
@@ -135,27 +112,135 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
             telemetry.addData(">", "Touch Play to start OpMode");
             telemetry.update();
         }
-        //        ============================== ORRRRR ======================================
-        // Wait for driver to press start
+
+
+
         waitForStart();
-        // =========================================================================================
 
+        FirstVisionProcessor.Selected selectedTag = visionProcessor.getSelection();
+        //////!!!!!!!!!!!!!!!!!!!! TODO BYPASS - REMOVE ME
+        selectedTag = FirstVisionProcessor.Selected.NONE;
+        /////!!!!!!!!!!!!!!!!!!!!!
 
-        if (true) { //(visionProcessor.getSelection() == FirstVisionProcessor.Selected.MIDDLE) {
+        // =============================================== MIDDLE POSITION =================================================================
+        if  (selectedTag == FirstVisionProcessor.Selected.MIDDLE) {
             // ASSUMING SPIKE MARK IS MIDDLE POSITION
-            // ==================================== Step 1: Drive forward for 2 seconds ====================================
-
-            // **** TIME DRIVING INSERTED IN STEP 2 ****
-
-            // ==================================== Step 2: Deposit pixel (push pixel to MIDDLE spike mark) =============================
-
-            // ****Insert time driving here****
-//            leftFront.setDirection(DcMotor.Direction.FORWARD);
-//            rightFront.setDirection(DcMotor.Direction.FORWARD);
-//            leftBack.setDirection(DcMotor.Direction.FORWARD);
-//            rightBack.setDirection(DcMotor.Direction.FORWARD);
+            // Step 1: Deposit pixel (push pixel to MIDDLE spike mark)
 
             // Step 1.a:  Drive forward for __ seconds
+            leftFront.setPower(-FORWARD_SPEED);
+            rightFront.setPower(-FORWARD_SPEED);
+            rightBack.setPower(FORWARD_SPEED);
+            leftBack.setPower(FORWARD_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && runtime.seconds() < 1.3) {
+                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+            leftBack.setPower(0);
+
+            sleep(1000);
+
+            // Step 2: Turn LEFT 90 degrees
+            //Spin left for 1.3 seconds
+            leftFront.setPower(TURN_SPEED);
+            rightFront.setPower(-TURN_SPEED);
+            rightBack.setPower(-TURN_SPEED);
+            leftBack.setPower(TURN_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && (runtime.seconds() < 1.5)) {
+                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+
+            // Step 4: Use the automatic code to drive to apriltag
+            DESIRED_TAG_ID = 2;
+            driveToAprilTag();
+        }
+        // =============================================== LEFT POSITION =================================================================
+        else if (selectedTag == FirstVisionProcessor.Selected.LEFT) {
+            // ASSUMING SPIKE MARK IS LEFT POSITION
+            // Step 1: Deposit pixel (push pixel to LEFT spike mark)
+
+            // Step 1.a:  Drive forward for __ seconds
+            // Decrease Speed first
+            FORWARD_SPEED = 0.25;
+            TURN_SPEED = 0.25;
+
+            leftFront.setPower(-FORWARD_SPEED);
+            rightFront.setPower(-FORWARD_SPEED);
+            rightBack.setPower(FORWARD_SPEED);
+            leftBack.setPower(FORWARD_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && runtime.seconds() < 1.5) {
+                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+            leftBack.setPower(0);
+
+            sleep(1000);
+
+            // Step 2: Turn LEFT 90 degrees
+            //Spin left for __ seconds
+            leftFront.setPower(TURN_SPEED);
+            rightFront.setPower(-TURN_SPEED);
+            rightBack.setPower(-TURN_SPEED);
+            leftBack.setPower(TURN_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && (runtime.seconds() < 2.9)) {
+                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+
+            // Return speed:
+            FORWARD_SPEED = 0.3;
+            TURN_SPEED = 0.3;
+            // Step 3: Place pixel
+            leftFront.setPower(-FORWARD_SPEED);
+            rightFront.setPower(-FORWARD_SPEED);
+            rightBack.setPower(FORWARD_SPEED);
+            leftBack.setPower(FORWARD_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && runtime.seconds() < .4) {
+                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+            leftBack.setPower(0);
+
+            sleep(1000);
+
+            // Step 4: Use the automatic code to drive the qr code
+            DESIRED_TAG_ID = 1;
+            driveToAprilTag();
+        }
+        // =============================================== RIGHT POSITION =================================================================
+        else if (selectedTag == FirstVisionProcessor.Selected.RIGHT) {
+            // ASSUMING SPIKE MARK IS RIGHT POSITION
+            // Step 1: Deposit pixel (push pixel to RIGHT spike mark)
+
+
+            // Step 1.a:  Slighty turn right
+            //Spin right for __ seconds
+            leftFront.setPower(-TURN_SPEED);
+            rightFront.setPower(TURN_SPEED);
+            rightBack.setPower(TURN_SPEED);
+            leftBack.setPower(-TURN_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && (runtime.seconds() < .6)) {
+                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+
+            // Step 1.a:  Drive forward for __ seconds, and place pixel
             leftFront.setPower(-FORWARD_SPEED);
             rightFront.setPower(-FORWARD_SPEED);
             rightBack.setPower(FORWARD_SPEED);
@@ -172,66 +257,45 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
 
             sleep(1000);
 
-//            // Step 1.b:  Drive backward for __ seconds
-//            leftFront.setPower(REVERSE_SPEED);
-//            rightFront.setPower(REVERSE_SPEED);
-//            rightBack.setPower(REVERSE_SPEED);
-//            leftBack.setPower(REVERSE_SPEED);
-//            runtime.reset();
-//            while (opModeIsActive() && (runtime.seconds() < .01)) {
-//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-//                telemetry.update();
-//            }
-//            sleep(2000);
-//
-//            // Step 3:  Drive Backward for 1 Second
-//            leftDrive.setPower(-FORWARD_SPEED);
-//            rightDrive.setPower(-FORWARD_SPEED);
-//            runtime.reset();
-//            while (opModeIsActive() && (runtime.seconds() < 1.0)) {
-//                telemetry.addData("Path", "Leg 3: %4.1f S Elapsed", runtime.seconds());
-//                telemetry.update();
-//            }
-//
-//            // Step 4:  Stop
-//            leftDrive.setPower(0);
-//            rightDrive.setPower(0);
-//
-//            telemetry.addData("Path", "Complete");
-//            telemetry.update();
-//            sleep(1000);
+            // Step 1.c:  Scoot back (so you dont hit the spike marker)
+            leftFront.setPower(-REVERSE_SPEED);
+            rightFront.setPower(-REVERSE_SPEED);
+            rightBack.setPower(REVERSE_SPEED);
+            leftBack.setPower(REVERSE_SPEED);
+            runtime.reset();
+            while (opModeIsActive() && runtime.seconds() < .5) {
+                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+                telemetry.update();
+            }
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+            leftBack.setPower(0);
+
+            sleep(1000);
 
 
-            // ==================================== Step 3: Turn right 90 degrees ====================================
-
-            //Spin left for 1.3 seconds
+            // Step 2: Turn left 120 degrees
+            //Spin left for __ seconds
             leftFront.setPower(TURN_SPEED);
             rightFront.setPower(-TURN_SPEED);
             rightBack.setPower(-TURN_SPEED);
             leftBack.setPower(TURN_SPEED);
             runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 1.5)) {
+            while (opModeIsActive() && (runtime.seconds() < 2.3)) {
                 telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
                 telemetry.update();
             }
 
-            // Drive towards Backdrop
-            // Step 1:  Drive forward for __ seconds
-//            leftFront.setPower(REVERSE_SPEED);
-//            rightFront.setPower(REVERSE_SPEED);
-//            rightBack.setPower(REVERSE_SPEED);
-//            leftBack.setPower(REVERSE_SPEED);
-//            runtime.reset();
-//            while (opModeIsActive() && (runtime.seconds() < .4)) {
-//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-//                telemetry.update();
-//            }
-//            sleep(1000);
-
-            // ==================================== Step 4: Use the automatic code to drive the qr code ======================
-            DESIRED_TAG_ID = 2;
+            // Step 4: Use the automatic code to drive to apriltag
+            DESIRED_TAG_ID = 3;
             driveToAprilTag();
         }
+        // TODO: Strafe right, drive forward to park in backstage
+        //!!!!!!!!!!!!!!!!!!!!!!!! TODO DELETE ME - DRIVES TO APRIL TAG
+        DESIRED_TAG_ID = 3;
+        driveToAprilTag();
+        //!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     private void initAprilTag() {
@@ -296,15 +360,15 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
     private void    setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
 
-        if (visionPortal == null) {
+        if (visionPortal_2 == null) {
             return;
         }
 
         // Make sure camera is streaming before we try to set the exposure controls
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+        if (visionPortal_2.getCameraState() != VisionPortal.CameraState.STREAMING) {
             telemetry.addData("Camera", "Waiting");
             telemetry.update();
-            while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+            while (!isStopRequested() && (visionPortal_2.getCameraState() != VisionPortal.CameraState.STREAMING)) {
                 sleep(20);
             }
             telemetry.addData("Camera", "Ready");
@@ -314,14 +378,14 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         // Set camera controls unless we are stopping.
         if (!isStopRequested())
         {
-            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+            ExposureControl exposureControl = visionPortal_2.getCameraControl(ExposureControl.class);
             if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
                 exposureControl.setMode(ExposureControl.Mode.Manual);
                 sleep(50);
             }
             exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
             sleep(20);
-            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+            GainControl gainControl = visionPortal_2.getCameraControl(GainControl.class);
             gainControl.setGain(gain);
             sleep(20);
         }
@@ -336,7 +400,10 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         double headingError;
         double yawError;
 
-        while (true) {
+        visionPortal.stopStreaming();
+        visionPortal_2.resumeStreaming();
+
+        while (opModeIsActive()) {
             // Step through the list of detected tags and look for a matching tag
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
@@ -347,6 +414,8 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
                         // Yes, we want to use this tag.
                         targetFound = true;
                         desiredTag = detection;
+                        telemetry.addData("target found", DESIRED_TAG_ID);
+
                         break;  // don't look any further.
                     } else {
                         // This tag is in the library, but we do not want to track it right now.
@@ -357,22 +426,21 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
                     telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
                 }
             }
-
-            // Tell the driver what we see, and what to do.
-            if (targetFound) {
-                telemetry.addData("\n>", "HOLD Left-Bumper to Drive to Target\n");
-                telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
-                telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
-                telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
-                telemetry.addData("Yaw", "%3.0f degrees", desiredTag.ftcPose.yaw);
-            } else {
-                telemetry.addData("\n>", "Drive using joysticks to find valid target\n");
-            }
+//
+//            // Tell the driver what we see, and what to do.
+//            if (targetFound) {
+//                telemetry.addData("\n>", "HOLD Left-Bumper to Drive to Target\n");
+//                telemetry.addData("Found", "ID %d (%s)", desiredTag.id, desiredTag.metadata.name);
+//                telemetry.addData("Range", "%5.1f inches", desiredTag.ftcPose.range);
+//                telemetry.addData("Bearing", "%3.0f degrees", desiredTag.ftcPose.bearing);
+//                telemetry.addData("Yaw", "%3.0f degrees", desiredTag.ftcPose.yaw);
+//            } else {
+//                telemetry.addData("\n>", "Drive using joysticks to find valid target\n");
+//            }
 
             // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
             //            if (gamepad1.left_bumper && targetFound) {
             if (targetFound) { //(targetFound) {
-
                 // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
                 rangeError = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
                 headingError = desiredTag.ftcPose.bearing;
@@ -384,13 +452,13 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
                 strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
 
                 telemetry.addData("Auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
-            } else {
-
-                // drive using manual POV Joystick mode.  Slow things down to make the robot more controlable.
-                drive = -gamepad1.left_stick_y / 2.0;  // Reduce drive rate to 50%.
-                strafe = -gamepad1.left_stick_x / 2.0;  // Reduce strafe rate to 50%.
-                turn = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
-                telemetry.addData("Manual", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+//            } else {
+//
+//                // drive using manual POV Joystick mode.  Slow things down to make the robot more controlable.
+//                drive = -gamepad1.left_stick_y / 2.0;  // Reduce drive rate to 50%.
+//                strafe = -gamepad1.left_stick_x / 2.0;  // Reduce strafe rate to 50%.
+//                turn = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
+//                telemetry.addData("Manual", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
             }
             telemetry.update();
 

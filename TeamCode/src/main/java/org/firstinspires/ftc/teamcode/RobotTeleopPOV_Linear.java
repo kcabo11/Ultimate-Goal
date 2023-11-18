@@ -105,6 +105,7 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
+        liftMotor    = hardwareMap.get(DcMotor.class, "liftMotor");
 
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -124,12 +125,12 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         // Define and initialize ALL installed servos.
         intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
         intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
-        linearSlide = hardwareMap.get(Servo.class, "linearSlide");
-        pixelPlacer = hardwareMap.get(Servo.class, "pixelPlacer");
-
-        // Possible Servos:
-        leftPixelLatch = hardwareMap.get(Servo.class, "leftPixelLatch");
-        rightPixelLatch = hardwareMap.get(Servo.class, "rightPixelLatch");
+//        linearSlide = hardwareMap.get(Servo.class, "linearSlide");
+//        pixelPlacer = hardwareMap.get(Servo.class, "pixelPlacer");
+//
+//        // Possible Servos:
+//        leftPixelLatch = hardwareMap.get(Servo.class, "leftPixelLatch");
+//        rightPixelLatch = hardwareMap.get(Servo.class, "rightPixelLatch");
 
 
         // Send telemetry message to signify robot waiting;
@@ -174,19 +175,45 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
                 rightBack.setPower(v4);
             }
 
+
+            if (gamepad2.dpad_up) {
+                liftMotor.setPower(.5);
+            }
+            else if (gamepad2.dpad_down) {
+                liftMotor.setPower(-.5);
+            }
+            else
+                liftMotor.setPower(0);
+
+
+
+            if (gamepad1.b) {
+                intakeLeft.setPower(.5);
+                intakeRight.setPower(-.5);
+            }
+            else if (gamepad1.a) {
+                intakeLeft.setPower(0);
+                intakeRight.setPower(0);
+            }
+            else if (gamepad1.x) {
+                intakeLeft.setPower(-.5);
+                intakeRight.setPower(.5);
+            }
+
             //moving frontright changes the front left value
             //front left changes the right front value
             //left back changes left back
             //right back should change the right back
 
-            if (gamepad1.y) // DOUBLE TAPPED!!
+//            if (gamepad1.y) // DOUBLE TAPPED!!
                 // shoot airplane
+
 
 
             // ========================== OPERATOR CONTROLLER ===========================================
 
-            intakeLeft.setPower(1);
-            intakeRight.setPower(-1);
+//            intakeLeft.setPower(1);
+//            intakeRight.setPower(-1);
 
             //D pad or bumper: up/down for linear slide
 
@@ -223,6 +250,7 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
             telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
             telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
             telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
+            telemetry.addData("liftMotor: ", liftMotor.getPower());
             telemetry.update();
 
             //
