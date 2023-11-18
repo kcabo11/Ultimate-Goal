@@ -61,6 +61,9 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
 
 
     public DcMotor  liftMotor     = null;
+    public DcMotor  liftDownMotor     = null;
+    public DcMotor  intakeMotor     = null;
+    public DcMotor  pixelLiftMotor     = null;
     public Servo    linearSlide    = null;
     //public Servo    rightClaw   = null;
 
@@ -105,7 +108,10 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
+        liftDownMotor    = hardwareMap.get(DcMotor.class, "liftDownMotor");
         liftMotor    = hardwareMap.get(DcMotor.class, "liftMotor");
+        pixelLiftMotor    = hardwareMap.get(DcMotor.class, "pixelLiftMotor");
+        intakeMotor    = hardwareMap.get(DcMotor.class, "intakeMotor");
 
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -175,30 +181,45 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
                 rightBack.setPower(v4);
             }
 
-
             if (gamepad2.dpad_up) {
-                liftMotor.setPower(.5);
+                pixelLiftMotor.setPower(-.5);
             }
             else if (gamepad2.dpad_down) {
-                liftMotor.setPower(-.5);
+                pixelLiftMotor.setPower(.2);
             }
+            else
+                pixelLiftMotor.setPower(0);
+
+            if (gamepad2.a)
+                liftMotor.setPower(1);
             else
                 liftMotor.setPower(0);
 
 
+            if (gamepad2.b)
+                liftDownMotor.setPower(.3);
+            else
+                liftDownMotor.setPower(0);
 
+            //Intake out
             if (gamepad1.b) {
+                intakeMotor.setPower(.5);
                 intakeLeft.setPower(.5);
                 intakeRight.setPower(-.5);
             }
-            else if (gamepad1.a) {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-            }
+            //Intake in
             else if (gamepad1.x) {
                 intakeLeft.setPower(-.5);
                 intakeRight.setPower(.5);
+                intakeMotor.setPower(-.5);
             }
+            else {
+                intakeLeft.setPower(0);
+                intakeRight.setPower(0);
+                intakeMotor.setPower(0);
+            }
+
+
 
             //moving frontright changes the front left value
             //front left changes the right front value
@@ -241,6 +262,8 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
                         //open right pixel latch
 //            else
 //                leftArm.setPower(0.0);
+
+
 
 
             // ==================================== TELEMETRY =========================================
