@@ -1,23 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.processors.FirstVisionProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -27,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous()
-public class VisionProcessorTestFromBook extends LinearOpMode {
+public class AutoDriveForward extends LinearOpMode {
 
     private FirstVisionProcessor visionProcessor;
     private VisionPortal visionPortal;
@@ -121,182 +114,197 @@ public class VisionProcessorTestFromBook extends LinearOpMode {
         }
 
 
+
         waitForStart();
+        leftFront.setPower(-FORWARD_SPEED);
+        rightFront.setPower(-FORWARD_SPEED);
+        rightBack.setPower(-FORWARD_SPEED);
+        leftBack.setPower(-FORWARD_SPEED);
+        runtime.reset();
 
-        FirstVisionProcessor.Selected selectedTag = visionProcessor.getSelection();
-
-        // =============================================== MIDDLE POSITION =================================================================
-        if (selectedTag == FirstVisionProcessor.Selected.MIDDLE) {
-            // ASSUMING SPIKE MARK IS MIDDLE POSITION
-            // Step 1: Deposit pixel (push pixel to MIDDLE spike mark)
-
-            // Step 1.a:  Drive forward for __ seconds
-            leftFront.setPower(-FORWARD_SPEED);
-            rightFront.setPower(-FORWARD_SPEED);
-            rightBack.setPower(-FORWARD_SPEED);
-            leftBack.setPower(-FORWARD_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && runtime.seconds() < 1.8) {
-                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftBack.setPower(0);
-            intakeLeft.setPower(.5);
-            intakeRight.setPower(-.5);
-
-            sleep(1000);
-
-            // Step 2: Turn LEFT 90 degrees
-            //Spin left for 1.3 seconds
-            //leftFront.setPower(TURN_SPEED);
+        while (opModeIsActive() && runtime.seconds() <3.5) {
+            telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+        leftBack.setPower(0);
+//
+//        FirstVisionProcessor.Selected selectedTag = visionProcessor.getSelection();
+//
+//        // =============================================== MIDDLE POSITION =================================================================
+//        if  (selectedTag == FirstVisionProcessor.Selected.MIDDLE) {
+//            // ASSUMING SPIKE MARK IS MIDDLE POSITION
+//            // Step 1: Deposit pixel (push pixel to MIDDLE spike mark)
+//
+//            // Step 1.a:  Drive forward for __ seconds
+//            leftFront.setPower(-FORWARD_SPEED);
+//            rightFront.setPower(-FORWARD_SPEED);
+//            rightBack.setPower(-FORWARD_SPEED);
+//            leftBack.setPower(-FORWARD_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && runtime.seconds() < 1.8) {
+//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//            leftBack.setPower(0);
+//            intakeLeft.setPower(.5);
+//            intakeRight.setPower(-.5);
+//            }
+//            sleep(1000);
+//
+//            // Step 2: Turn LEFT 90 degrees
+//            //Spin left for 1.3 seconds
+//            //leftFront.setPower(TURN_SPEED);
+////            rightFront.setPower(-TURN_SPEED);
+////            rightBack.setPower(-TURN_SPEED);
+////            leftBack.setPower(TURN_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && (runtime.seconds() < 1.3)) {
+//                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//
+//            // Step 4: Use the automatic code to drive to apriltag
+//            DESIRED_TAG_ID = 2;
+//            //driveToAprilTag();
+//
+//        // =============================================== LEFT POSITION =================================================================
+//        else if (selectedTag == FirstVisionProcessor.Selected.LEFT) {
+//            // ASSUMING SPIKE MARK IS LEFT POSITION
+//            // Step 1: Deposit pixel (push pixel to LEFT spike mark)
+//
+//            // Step 1.a:  Drive forward for __ seconds
+//            // Decrease Speed first
+//            FORWARD_SPEED = 0.25;
+//            TURN_SPEED = 0.25;
+//
+//            leftFront.setPower(-FORWARD_SPEED);
+//            rightFront.setPower(-FORWARD_SPEED);
+//            rightBack.setPower(FORWARD_SPEED);
+//            leftBack.setPower(FORWARD_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && runtime.seconds() < 1.4) {
+//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//            leftBack.setPower(0);
+//
+//            sleep(1000);
+//
+//            // Step 2: Turn LEFT 90 degrees
+//            //Spin left for __ seconds
+//            leftFront.setPower(TURN_SPEED);
 //            rightFront.setPower(-TURN_SPEED);
 //            rightBack.setPower(-TURN_SPEED);
 //            leftBack.setPower(TURN_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 1.1)) {
-                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-
-            // Step 4: Use the automatic code to drive to apriltag
-            DESIRED_TAG_ID = 2;
-            //driveToAprilTag();
-        }
-        // =============================================== LEFT POSITION =================================================================
-        else if (selectedTag == FirstVisionProcessor.Selected.LEFT) {
-            // ASSUMING SPIKE MARK IS LEFT POSITION
-            // Step 1: Deposit pixel (push pixel to LEFT spike mark)
-
-            // Step 1.a:  Drive forward for __ seconds
-            // Decrease Speed first
-            FORWARD_SPEED = 0.25;
-            TURN_SPEED = 0.25;
-
-            leftFront.setPower(-FORWARD_SPEED);
-            rightFront.setPower(-FORWARD_SPEED);
-            rightBack.setPower(FORWARD_SPEED);
-            leftBack.setPower(FORWARD_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && runtime.seconds() < 1.4) {
-                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftBack.setPower(0);
-
-            sleep(1000);
-
-            // Step 2: Turn LEFT 90 degrees
-            //Spin left for __ seconds
-            leftFront.setPower(TURN_SPEED);
-            rightFront.setPower(-TURN_SPEED);
-            rightBack.setPower(-TURN_SPEED);
-            leftBack.setPower(TURN_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 2.9)) {
-                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-
-            // Return speed:
-            FORWARD_SPEED = 0.3;
-            TURN_SPEED = 0.3;
-            // Step 3: Place pixel
-            leftFront.setPower(-FORWARD_SPEED);
-            rightFront.setPower(-FORWARD_SPEED);
-            rightBack.setPower(FORWARD_SPEED);
-            leftBack.setPower(FORWARD_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && runtime.seconds() < .4) {
-                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftBack.setPower(0);
-
-            sleep(1000);
-
-            // Step 4: Use the automatic code to drive the qr code
-            DESIRED_TAG_ID = 1;
-            //driveToAprilTag();
-        }
-        // =============================================== RIGHT POSITION =================================================================
-        else if (selectedTag == FirstVisionProcessor.Selected.RIGHT) {
-            // ASSUMING SPIKE MARK IS RIGHT POSITION
-            // Step 1: Deposit pixel (push pixel to RIGHT spike mark)
-
-
-            // Step 1.a:  Slighty turn right
-            //Spin right for __ seconds
-            leftFront.setPower(-TURN_SPEED);
-            rightFront.setPower(TURN_SPEED);
-            rightBack.setPower(TURN_SPEED);
-            leftBack.setPower(-TURN_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < .6)) {
-                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-
-            // Step 1.a:  Drive forward for __ seconds, and place pixel
-            leftFront.setPower(-FORWARD_SPEED);
-            rightFront.setPower(-FORWARD_SPEED);
-            rightBack.setPower(FORWARD_SPEED);
-            leftBack.setPower(FORWARD_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && runtime.seconds() < 1) {
-                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftBack.setPower(0);
-
-            sleep(1000);
-
-            // Step 1.c:  Scoot back (so you dont hit the spike marker)
-            leftFront.setPower(-REVERSE_SPEED);
-            rightFront.setPower(-REVERSE_SPEED);
-            rightBack.setPower(REVERSE_SPEED);
-            leftBack.setPower(REVERSE_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && runtime.seconds() < .5) {
-                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            rightBack.setPower(0);
-            leftBack.setPower(0);
-
-            sleep(1000);
-
-
-            // Step 2: Turn left 120 degrees
-            //Spin left for __ seconds
-            leftFront.setPower(TURN_SPEED);
-            rightFront.setPower(-TURN_SPEED);
-            rightBack.setPower(-TURN_SPEED);
-            leftBack.setPower(TURN_SPEED);
-            runtime.reset();
-            while (opModeIsActive() && (runtime.seconds() < 2.3)) {
-                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-                telemetry.update();
-            }
-
-            // Step 4: Use the automatic code to drive to apriltag
-            DESIRED_TAG_ID = 3;
-            //driveToAprilTag();
-        }
-        // TODO: Strafe right, drive forward to park in backstage
+//            runtime.reset();
+//            while (opModeIsActive() && (runtime.seconds() < 2.9)) {
+//                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//
+//            // Return speed:
+//            FORWARD_SPEED = 0.3;
+//            TURN_SPEED = 0.3;
+//            // Step 3: Place pixel
+//            leftFront.setPower(-FORWARD_SPEED);
+//            rightFront.setPower(-FORWARD_SPEED);
+//            rightBack.setPower(FORWARD_SPEED);
+//            leftBack.setPower(FORWARD_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && runtime.seconds() < .4) {
+//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//            leftBack.setPower(0);
+//
+//            sleep(1000);
+//
+//            // Step 4: Use the automatic code to drive the qr code
+//            DESIRED_TAG_ID = 1;
+//            //driveToAprilTag();
+//        }
+//        // =============================================== RIGHT POSITION =================================================================
+//        else if (selectedTag == FirstVisionProcessor.Selected.RIGHT) {
+//            // ASSUMING SPIKE MARK IS RIGHT POSITION
+//            // Step 1: Deposit pixel (push pixel to RIGHT spike mark)
+//
+//
+//            // Step 1.a:  Slighty turn right
+//            //Spin right for __ seconds
+//            leftFront.setPower(-TURN_SPEED);
+//            rightFront.setPower(TURN_SPEED);
+//            rightBack.setPower(TURN_SPEED);
+//            leftBack.setPower(-TURN_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && (runtime.seconds() < .6)) {
+//                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//
+//            // Step 1.a:  Drive forward for __ seconds, and place pixel
+//            leftFront.setPower(-FORWARD_SPEED);
+//            rightFront.setPower(-FORWARD_SPEED);
+//            rightBack.setPower(FORWARD_SPEED);
+//            leftBack.setPower(FORWARD_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && runtime.seconds() < 1) {
+//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//            leftBack.setPower(0);
+//
+//            sleep(1000);
+//
+//            // Step 1.c:  Scoot back (so you dont hit the spike marker)
+//            leftFront.setPower(-REVERSE_SPEED);
+//            rightFront.setPower(-REVERSE_SPEED);
+//            rightBack.setPower(REVERSE_SPEED);
+//            leftBack.setPower(REVERSE_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && runtime.seconds() < .5) {
+//                telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            rightBack.setPower(0);
+//            leftBack.setPower(0);
+//
+//            sleep(1000);
+//
+//
+//            // Step 2: Turn left 120 degrees
+//            //Spin left for __ seconds
+//            leftFront.setPower(TURN_SPEED);
+//            rightFront.setPower(-TURN_SPEED);
+//            rightBack.setPower(-TURN_SPEED);
+//            leftBack.setPower(TURN_SPEED);
+//            runtime.reset();
+//            while (opModeIsActive() && (runtime.seconds() < 2.3)) {
+//                telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+//                telemetry.update();
+//            }
+//
+//            // Step 4: Use the automatic code to drive to apriltag
+//            DESIRED_TAG_ID = 3;
+//            //driveToAprilTag();
+//        }
+//        // TODO: Strafe right, drive forward to park in backstage
         //!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 

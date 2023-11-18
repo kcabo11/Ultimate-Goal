@@ -29,14 +29,11 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 /*
  * This OpMode executes a POV Game style Teleop for a direct drive robot
@@ -50,8 +47,8 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Robot: Teleop POV", group="Robot")
-public class RobotTeleopPOV_Linear extends LinearOpMode {
+@TeleOp(name="Robot: Motor Test", group="Robot")
+public class MotorTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     public DcMotor leftFront   = null;
@@ -115,7 +112,7 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
 
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
 
@@ -191,35 +188,41 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
                 pixelLiftMotor.setPower(0);
 
             if (gamepad2.a)
-                liftMotor.setPower(1);
+                leftFront.setPower(1);
             else
-                liftMotor.setPower(0);
+                leftFront.setPower(0);
 
 
-            if (gamepad2.y) {
+            if (gamepad2.b)
+                leftBack.setPower(1);
+            else
+                leftBack.setPower(0);
+
+
+            if (gamepad2.x)
+                rightFront.setPower(1);
+            else
+                rightFront.setPower(0);
+
+
+            if (gamepad2.y)
+                rightBack.setPower(1);
+            else
+                rightBack.setPower(0);
+
+
+
+
+
+
+
+
+
+            if (gamepad1.b)
                 liftDownMotor.setPower(1);
-                liftMotor.setPower(-.5);
-            }
             else
                 liftDownMotor.setPower(0);
 
-            //Intake out
-            if (gamepad2.b) {
-                intakeMotor.setPower(.5);
-                intakeLeft.setPower(.5);
-                intakeRight.setPower(-.5);
-            }
-            //Intake in
-            else if (gamepad2.x) {
-                intakeLeft.setPower(-.5);
-                intakeRight.setPower(.5);
-                intakeMotor.setPower(-.5);
-            }
-            else {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                intakeMotor.setPower(0);
-            }
 
 
 
