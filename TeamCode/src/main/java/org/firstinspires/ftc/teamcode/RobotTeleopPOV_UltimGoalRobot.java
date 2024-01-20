@@ -29,14 +29,11 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 /*
  * This OpMode executes a POV Game style Teleop for a direct drive robot
@@ -50,8 +47,8 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Robot: Teleop POV", group="Robot")
-public class RobotTeleopPOV_Linear extends LinearOpMode {
+@TeleOp(name="Teleop for Ultim Goal Robot", group="Robot")
+public class RobotTeleopPOV_UltimGoalRobot extends LinearOpMode {
 
     /* Declare OpMode members. */
     public DcMotor leftFront   = null;
@@ -59,23 +56,10 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
     public DcMotor  leftBack     = null;
     public DcMotor  rightBack   = null;
 
-
-    public DcMotor  liftMotor     = null;
-    public DcMotor  liftDownMotor     = null;
-    public DcMotor  intakeMotor     = null;
-    public DcMotor  pixelLiftMotor     = null;
-    public Servo    linearSlide    = null;
-    public Servo    pixelPlacerServo = null;
-    //public Servo    rightClaw   = null;
-
     // ============= POSSIBLE SERVOS: ========
     public Servo leftPixelLatch = null;
     public Servo rightPixelLatch = null;
     // =======================================
-    public Servo pixelPlacer = null;
-    public CRServo intakeLeft = null;
-    public CRServo intakeRight = null;
-
 
     double clawOffset = 0;
     double scaleTurningSpeed = .8;
@@ -109,27 +93,11 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack    = hardwareMap.get(DcMotor.class, "leftBack");
-        liftDownMotor    = hardwareMap.get(DcMotor.class, "liftDownMotor");
-        liftMotor    = hardwareMap.get(DcMotor.class, "liftMotor");
-        pixelLiftMotor    = hardwareMap.get(DcMotor.class, "pixelLiftMotor");
-        pixelPlacerServo = hardwareMap.get(Servo.class, "pixelPlacerServo");
 
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
-
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -141,8 +109,6 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
         // rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Define and initialize ALL installed servos.
-        intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
-        intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
 //        linearSlide = hardwareMap.get(Servo.class, "linearSlide");
 //        pixelPlacer = hardwareMap.get(Servo.class, "pixelPlacer");
 //
@@ -192,55 +158,6 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
                 leftBack.setPower(v3);
                 rightBack.setPower(v4);
             }
-
-            if (gamepad2.dpad_up) { //checks out
-                pixelLiftMotor.setPower(-.5);
-            }
-            else if (gamepad2.dpad_down) {
-                pixelLiftMotor.setPower(.2);
-            }
-            else
-                pixelLiftMotor.setPower(0);
-
-            if (gamepad2.a)
-                liftMotor.setPower(1);
-            else
-                liftMotor.setPower(0);
-            // This is the pixelPlacerServo
-            if (gamepad2.right_bumper) {
-                pixelPlacerServo.setPosition(1);
-            }
-            else if (gamepad2.left_bumper) {
-                pixelPlacerServo.setPosition(0);
-            }
-
-            if (gamepad2.y) {
-                liftDownMotor.setPower(1);
-                liftMotor.setPower(-.5);
-            }
-            else
-                liftDownMotor.setPower(0);
-
-            //Intake out
-
-            if (gamepad2.b) {
-                //intakeMotor.setPower(.5);
-                intakeLeft.setPower(1);
-                intakeRight.setPower(-1);
-            }
-            //Intake in
-            else if (gamepad2.x) {
-                intakeLeft.setPower(-1);
-                intakeRight.setPower(1);
-                //intakeMotor.setPower(-.5);
-            }
-            else {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-                //intakeMotor.setPower(0);
-            }
-
-
 
             //moving frontright changes the front left value
             //front left changes the right front value
@@ -294,8 +211,6 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
             telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
             telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
             telemetry.addData("rightFront: ", rightFront.getCurrentPosition());
-            telemetry.addData("liftMotor: ", liftMotor.getPower());
-            telemetry.addData("pixelLiftMotor: ", pixelLiftMotor.getPower());
             telemetry.addData("DPAD UP", gamepad2.dpad_up);
             telemetry.addData("DPAD DOWN", gamepad2.dpad_down);
             telemetry.addData("gamepad2.b", gamepad2.b);
