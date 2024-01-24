@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -160,7 +161,8 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
     private DcMotor rightFrontDrive  = null;  //  Used to control the right front drive wheel
     private DcMotor leftBackDrive    = null;  //  Used to control the left back drive wheel
     private DcMotor rightBackDrive   = null;  //  Used to control the right back drive wheel
-
+    private DcMotor pixelLiftMotor = null;
+    private Servo pixelPlacerServo = null;
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     private static final int DESIRED_TAG_ID = 1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     private VisionPortal visionPortal;               // Used to manage the video source.
@@ -212,6 +214,9 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
         initAprilTag();
 
 
+        pixelLiftMotor    = hardwareMap.get(DcMotor.class, "pixelLiftMotor");
+        pixelPlacerServo = hardwareMap.get(Servo.class, "pixelPlacerServo");
+
         // Initialize the drive system variables.
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
@@ -236,6 +241,9 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
 //        rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+        pixelLiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pixelLiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         telemetry.addData("Camera preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
@@ -703,6 +711,7 @@ public class RobotAutoDriveByGyro_Linear extends LinearOpMode {
         telemetry.addData("Heading- Target : Current", "%5.2f : %5.0f", targetHeading, getHeading());
         telemetry.addData("Error  : Steer Pwr",  "%5.1f : %5.1f", headingError, turnSpeed);
         telemetry.addData("Wheel Speeds L : R", "%5.2f : %5.2f", leftSpeed, rightSpeed);
+        telemetry.addData("pixelPlacerMotor: ", pixelLiftMotor.getCurrentPosition());
         telemetry.addData("leftFront: ", leftFront.getCurrentPosition());
         telemetry.addData("leftBack: ", leftBack.getCurrentPosition());
         telemetry.addData("rightBack: ", rightBack.getCurrentPosition());
