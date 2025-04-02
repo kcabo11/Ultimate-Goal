@@ -221,13 +221,13 @@ public class RobotTeleopPOV_Linear extends LinearOpMode {
 
             if (gamepad2.b) {
                 //intakeMotor.setPower(.5);
-                intakeLeft.setPower(1);
-                intakeRight.setPower(-1);
+                intakeLeft.setPower(.5);
+                intakeRight.setPower(.5);
             }
             //Intake in
             else if (gamepad2.x) {
-                intakeLeft.setPower(-1);
-                intakeRight.setPower(1);
+                intakeLeft.setPower(-.5);
+                intakeRight.setPower(-.5);
                 //intakeMotor.setPower(-.5);
             } else {
                 intakeLeft.setPower(0);
